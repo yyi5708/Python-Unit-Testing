@@ -1,0 +1,74 @@
+From fd03f0bebb61c0f2604fbd0f098873858cd788ca Mon Sep 17 00:00:00 2001
+From: bdbvse <bdbvse@g.rit.edu>
+Date: Tue, 10 Feb 2026 15:47:25 -0500
+Subject: [PATCH] Fixed Patron API usage (properties).  Improved
+ library_db_interface.update_patron method.
+
+---
+ library/library.py              | 2 +-
+ library/library_db_interface.py | 9 +++++----
+ run_library_db_samples.py       | 4 ++--
+ 3 files changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/library/library.py b/library/library.py
+index 1d94d5d..c96a08e 100644
+--- a/library/library.py
++++ b/library/library.py
+@@ -97,7 +97,7 @@ class Library:
+         :param patron: the Patron object
+         :returns: True if they are in the database, False if not
+         """
+-        reg_patron = self.db.retrieve_patron(patron.get_memberID())
++        reg_patron = self.db.retrieve_patron(patron.member_id)
+         if reg_patron:
+             return True
+         return False
+diff --git a/library/library_db_interface.py b/library/library_db_interface.py
+index bb53cca..aaa02fd 100644
+--- a/library/library_db_interface.py
++++ b/library/library_db_interface.py
+@@ -48,17 +48,18 @@ class Library_DB:
+         results = self.db.all()
+         return results
+ 
+-    def update_patron(self, patron):
++    def update_patron(self, patron) -> bool:
+         """Updates a Patron's data in the DB.
+         
+         :param patron: the new Patron object to be updated
+-        :returns: None if the patron parameter is not the correct object
++        :returns: False if the patron parameter is not the correct object
+         """
+         if not patron:
+-            return None
++            return False
+         query = Query()
+         data = self.convert_patron_to_db_format(patron)
+-        self.db.update(data, query.memberID == patron.get_memberID())
++        updated_ids = self.db.update(data, query.memberID == patron.member_id)
++        return len(updated_ids) > 0
+ 
+     def retrieve_patron(self, memberID):
+         """Gets a Patron from the database.
+diff --git a/run_library_db_samples.py b/run_library_db_samples.py
+index aa8ca2b..18d05cf 100644
+--- a/run_library_db_samples.py
++++ b/run_library_db_samples.py
+@@ -22,12 +22,12 @@ def main():
+     updated_patron = bryan.with_age(21)
+     library_svc.update_patron(updated_patron)
+     # Show that patron's info
+-    show_a_patron(library_svc.retrieve_patron(bryan.get_memberID()))
++    show_a_patron(library_svc.retrieve_patron(bryan.member_id))
+     # Shutdown the database connection
+     library_svc.db.close()
+ 
+ def show_a_patron(patron: Patron) -> None:
+-    print(f"Patron {patron.get_memberID()} is {patron.get_fname()} {patron.get_lname()} and is {patron.get_age()} years old")
++    print(f"Patron {patron.member_id} is {patron.fname} {patron.lname} and is {patron.age} years old")
+ 
+ if __name__ == "__main__":
+     main()
+-- 
+2.50.1 (Apple Git-155)
+

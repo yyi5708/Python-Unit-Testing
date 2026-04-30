@@ -1,0 +1,14 @@
+atomicwrites==1.3.0
+attrs==18.2.0
+certifi==2024.6.2
+chardet==3.0.4
+coverage==7.5.3
+idna==3.7
+more-itertools==6.0.0
+pbr==5.1.2
+pluggy==0.8.1
+py==1.8.0
+requests==2.32.3
+six==1.12.0
+tinydb==4.8.0
+urllib3==2.2.1
